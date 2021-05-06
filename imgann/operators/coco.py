@@ -90,7 +90,7 @@ class COCO(IOperator, ABC):
         bboxs = []
         areas = []
         for i in range(len(xmaxs)):
-            bboxs.append([xmins[i], ymins[i], xmaxs[i], ymaxs[i]])
+            bboxs.append([int(xmins[i]), int(ymins[i]), int(xmaxs[i]) - int(xmins[i]), int(ymaxs[i]) - int(ymins[i])])
             areas.append((xmaxs[i] - xmins[i]) * (ymaxs[i] - ymins[i]))
 
         compact_ann_list = zip(obj_ids, image_ids, cat_ids, areas, bboxs)
@@ -112,12 +112,14 @@ class COCO(IOperator, ABC):
         :param box: [X, Y, width, height]
         :return: [(xmin, ymin), (xmax, ymax)]
         """
+        #o_x, o_y, o_width, o_height = box
+        #xmin = int(o_x - o_width / 2)
+        #ymin = int(o_y - o_height / 2)
+        #xmax = int(o_x + o_width / 2)
+        #ymax = int(o_y + o_height / 2)
+        #return [(xmin, ymin), (xmax, ymax)]
         o_x, o_y, o_width, o_height = box
-        xmin = int(o_x - o_width / 2)
-        ymin = int(o_y - o_height / 2)
-        xmax = int(o_x + o_width / 2)
-        ymax = int(o_y + o_height / 2)
-        return [(xmin, ymin), (xmax, ymax)]
+        return [(o_x, o_y), (o_x + o_width, o_y + o_height)]
 
     def __updateDataset(self, images):
         """

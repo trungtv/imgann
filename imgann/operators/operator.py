@@ -8,7 +8,7 @@ import pandas as pd
 import logging
 import random
 import sys
-
+import warnings
 # set logger
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -172,20 +172,24 @@ class IOperator(object):
         :param text_th: thickness of the text :int
         :return: matplotlib.pyplot.plt object / a image.
         """
-        img = cv2.imread(path)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-        for i in range(len(boxes)):
-            # print(boxes[i][0], boxes[i][1])
-            cv2.rectangle(img, boxes[i][0], boxes[i][1], color=(14, 14, 14), thickness=rect_th)
-            cv2.putText(img, cls[i],
-                        boxes[i][0], cv2.FONT_HERSHEY_COMPLEX,
-                        text_size, color=(1, 1, 1), thickness=text_th)
-        plt.figure(figsize=(30, 30))
-        plt.imshow(img)
-        plt.xticks([])
-        plt.yticks([])
-        plt.show()
+        try:
+            print(path)
+            img = cv2.imread(path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        
+            for i in range(len(boxes)):
+                # print(boxes[i][0], boxes[i][1])
+                cv2.rectangle(img, boxes[i][0], boxes[i][1], color=(14, 14, 14), thickness=rect_th)
+                cv2.putText(img, cls[i],
+                            (boxes[i][0][0] + 10, boxes[i][0][1] + 10), cv2.FONT_HERSHEY_COMPLEX,
+                            text_size, color=(1, 1, 1), thickness=text_th)
+            plt.figure(figsize=(30, 30))
+            plt.imshow(img)
+            plt.xticks([])
+            plt.yticks([])
+            plt.show()
+        except: 
+            warnings.warn("Warning: Something is wrong in render: {} but let skip it for now.".format(path))
         return
 
     def __listGen(self, data_list):
