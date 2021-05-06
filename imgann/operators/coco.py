@@ -83,10 +83,10 @@ class COCO(IOperator, ABC):
         obj_ids = self.annotations["obj_id"]
         image_ids = self.annotations["image_id"]
         cat_ids = self.annotations["class_id"]
-        xmins = self.annotations["x_min"]
-        ymins = self.annotations["y_min"]
-        xmaxs = self.annotations["x_max"]
-        ymaxs = self.annotations["y_max"]
+        xmins = self.annotations["x_min"].tolist()
+        ymins = self.annotations["y_min"].tolist()
+        xmaxs = self.annotations["x_max"].tolist()
+        ymaxs = self.annotations["y_max"].tolist()
         bboxs = []
         areas = []
         for i in range(len(xmaxs)):
@@ -222,7 +222,7 @@ class COCO(IOperator, ABC):
             ret_dict = {}
             for i in range(nt):
                 if i < nv:
-                    ret_dict[tags[i]] = str(values[i])
+                    ret_dict[tags[i]] = values[i]
                 else:
                     ret_dict[tags[i]] = padd
             else:
