@@ -7,7 +7,7 @@ import os
 import pandas as pd
 import logging
 import sys
-
+import numpy as np
 
 # setup logger
 logging.basicConfig()
@@ -83,17 +83,33 @@ class COCO(IOperator, ABC):
         obj_ids = self.annotations["obj_id"]
         image_ids = self.annotations["image_id"]
         cat_ids = self.annotations["class_id"]
+        ignores = np.zeros(len(cat_ids), int).tolist()
+        iscrowds = np.zeros(len(cat_ids), int).tolist()
+
         xmins = self.annotations["x_min"].tolist()
         ymins = self.annotations["y_min"].tolist()
         xmaxs = self.annotations["x_max"].tolist()
         ymaxs = self.annotations["y_max"].tolist()
         bboxs = []
         areas = []
-        for i in range(len(xmaxs)):
-            bboxs.append([int(xmins[i]), int(ymins[i]), int(xmaxs[i]) - int(xmins[i]), int(ymaxs[i]) - int(ymins[i])])
-            areas.append((xmaxs[i] - xmins[i]) * (ymaxs[i] - ymins[i]))
+        def find_image_width_height(anno_index):
+            image_id = image_ids[anno_index]
+            index = ids.index(image_id)
+            width = widths[index]
+            height = heights[index]
+            return width, height
 
-        compact_ann_list = zip(obj_ids, image_ids, cat_ids, areas, bboxs)
+        for i in range(len(xmaxs)):
+            t_width, t_height = find_image_width_height(i)
+            x = max(0, xmins[i])
+            y = max(0, ymins[i])
+            w = min(xmaxs[i] - x, t_width)
+            h = min(ymaxs[i] - y, t_height)
+            bboxs.append([x, y, w, h])
+            #areas.append((xmaxs[i] - xmins[i]) * (ymaxs[i] - ymins[i]))
+            areas.append(w * h)
+
+        compact_ann_list = zip(obj_ids, image_ids, cat_ids, areas, bboxs, ignores, iscrowds)
         for line in compact_ann_list:
             data["annotations"].append(
                 self.__list2dict(["id", "image_id", "category_id", "area", "bbox", "ignore", "iscrowd"], line))
